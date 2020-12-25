@@ -12,6 +12,7 @@ export default class Game extends Component {
     }
 
     this.keydown = this.handleKeyPress.bind(this)
+    this.setWinner = this.setWinner.bind(this)
   }
   componentDidMount(){
     window.addEventListener('keydown', this.keydown)
@@ -31,46 +32,78 @@ export default class Game extends Component {
     if (event.keyCode === 38 || event.keyCode === 187) {
       const score = this.props.score
       score[this.state.number]++
-      const server = Math.floor((score[0] + score[1])/2)%2
-      this.props.onPointChange(score, server)
+      this.props.onPointChange(score)
       this.setState({
-        number: null
+        number: null,
       })
     } else if (event.keyCode === 40 || event.keyCode === 189) {
       const score = this.props.score
       score[this.state.number]--
-      const server = Math.floor((score[0] + score[1])/2)%2
-      this.props.onPointChange(score, server)
+      this.props.onPointChange(score)
       this.setState({
         number: null,
       })
     }
   }
+  setWinner(winner){
+    var wins = this.props.wins
+    wins[winner]++
+    this.props.onWinner(wins)
+    this.setState({
+      number: null,
+    })
+  }
+  renderBarWinner(){
+    if (((this.props.score[0] < 11) && (this.props.score[0] < 11)) || (Math.abs(this.props.score[0] - this.props.score[1]) < 2)){
+      const serveBar = <div style={{background: '#16f016'}}><h5>Server</h5></div>
+      const serverStatus = [
+        (this.props.server === 0 ? serveBar : <></>),
+        (this.props.server === 1 ? serveBar : <></>)
+      ]
+      return (
+        <>
+          <Col align="center">
+            {serverStatus[0]}
+          </Col>
+          <Col align="center">
+            {serverStatus[1]}
+          </Col>
+        </>
+      )
+    } else {
+      const plWinner = (this.props.score[0] > this.props.score[1]) ? 0 : 1
+      const winner = (
+        <button onClick={() => (this.setWinner(plWinner))}>
+          <Col>
+            <h2>
+              {this.props.players[plWinner]} is the Winner!!!
+            </h2>
+          </Col>
+        </button>
+      )
+      return (
+        <Col align="center">
+          {winner}
+        </Col>
+      )
+    }
+  }
   render(){
-    const serveBar = <div style={{background: '#16f016'}}><h5>Server</h5></div>
-    const serveStatus = [
-      (this.props.currentServer === 0 ? serveBar : <></>),
-      (this.props.currentServer === 1 ? serveBar : <></>)
-    ]
+    const bar = this.renderBarWinner()
     return (
       <Container fluid>
         <Row>
           <Col align="center">
-            <h1>{this.props.player1}'s wins: {this.props.wins[0]}</h1>
+            <h1>{this.props.players[0]}'s wins: {this.props.wins[0]}</h1>
             <h3>Score: {this.props.score[0]}</h3>
           </Col>
           <Col align="center">
-            <h1>{this.props.player2}'s wins: {this.props.wins[1]}</h1>
+            <h1>{this.props.players[1]}'s wins: {this.props.wins[1]}</h1>
             <h3>Score: {this.props.score[1]}</h3>
           </Col>
         </Row>
         <Row>
-          <Col align="center">
-            {serveStatus[0]}
-          </Col>
-          <Col align="center">
-          {serveStatus[1]}
-          </Col>
+          {bar}
         </Row>
       </Container>
     )
