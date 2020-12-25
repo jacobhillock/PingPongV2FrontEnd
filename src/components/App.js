@@ -12,7 +12,7 @@ import {
 
 function Home (props) {
   return (
-    <Container>
+    <Container fluid align="center">
       <h1>Home</h1>
       <p>This is a PingPong score board app</p>
     </Container>
@@ -42,20 +42,29 @@ class App extends Component {
     super(props)
 
     this.state = {
-      player1: 'Player 1',
-      player2: 'Player 2',
+      players: ['Player 1', 'Player 2'],
       wins: [0, 0],
       score: [0, 0],
-      currentServer: 0,
+      initialServer: 0,
+      server: 0,
       switchSides: false,
     }
     this.handlePointChange = this.handlePointChange.bind(this)
+    this.handleWinner = this.handleWinner.bind(this)
   }
-  handlePointChange(score, currentServer){
+  handlePointChange(score){
     this.setState({
       score,
-      currentServer
+      server: Math.floor((score[0] + score[1])/2)%2
     })
+  }
+  handleWinner (wins) {
+    this.setState((currentState) => ({
+      score: [0, 0],
+      initialServer: (currentState.initialServer + 1) % 2,
+      server: (currentState.initialServer + 1) % 2,
+      wins,
+    }))
   }
   render () {
     return (
@@ -69,19 +78,22 @@ class App extends Component {
         <Route path='/game' render={() => {
           return (
             <Game 
-              player1={this.state.player1}
-              player2={this.state.player2}
+              players={this.state.players}
               wins={this.state.wins}
               score={this.state.score}
-              currentServer={this.state.currentServer}
+              server={this.state.server}
               onPointChange={this.handlePointChange}
+              onWinner={this.handleWinner}
               switchSides={this.state.switchSides}
             />
           )
         }} />
         <Route path='/config' render={() => {
           return (
-            <Config />
+            <Config 
+              players={this.state.players}
+              switchSides={this.state.switchSides}
+            />
           )
         }} />
       </BrowserRouter>
