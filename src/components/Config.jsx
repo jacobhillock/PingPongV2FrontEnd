@@ -1,25 +1,24 @@
-import React, { Component } from "react"
-import {Redirect} from 'react-router-dom'
-import Container from 'react-bootstrap/Container'
-import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
-import Col from 'react-bootstrap/Col'
+import React, { Component, useContext, useEffect } from "react";
+import { Redirect } from "react-router-dom";
+import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
 
-export default class Config extends Component{
-  constructor(props){
-    super(props)
+export default class Config extends Component {
+  constructor(props) {
+    super(props);
 
-    this.submitChanges = this.submitChanges.bind(this)
+    this.submitChanges = this.submitChanges.bind(this);
   }
-  submitChanges (event) {
-    const pl1 = event.target.pl1.value
-    const pl2 = event.target.pl2.value
-    this.props.onConfig(pl1, pl2, false, false)
-    return (
-      <Redirect to="/" />
-    )
+  submitChanges(event) {
+    const { setPlayers } = useContext(Context);
+    setPlayers([event.target.pl1.value, event.target.pl2.value]);
+
+    this.props.onConfig(false, false);
   }
-  render(){
+  render() {
+    const { players } = useContext(Context);
     return (
       <Container fluid align="center">
         <h1>Config</h1>
@@ -30,7 +29,7 @@ export default class Config extends Component{
               <Form.Control
                 className="mb-2"
                 id="pl1"
-                defaultValue={this.props.players[0]}
+                defaultValue={players[0]}
               />
             </Form.Group>
             <Form.Group as={Col}>
@@ -38,7 +37,7 @@ export default class Config extends Component{
               <Form.Control
                 className="mb-2"
                 id="pl2"
-                defaultValue={this.props.players[1]}
+                defaultValue={players[1]}
               />
             </Form.Group>
             <Form.Group as={Col} controlId="switch">
@@ -61,6 +60,6 @@ export default class Config extends Component{
           </Form.Row>
         </Form>
       </Container>
-    )
+    );
   }
 }
