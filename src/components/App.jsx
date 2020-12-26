@@ -48,15 +48,17 @@ class App extends Component {
       initialServer: 0,
       server: 0,
       switchSides: false,
+      darkMode: false,
     }
     this.handlePointChange = this.handlePointChange.bind(this)
     this.handleWinner = this.handleWinner.bind(this)
+    this.handleConfig = this.handleConfig.bind(this)
   }
   handlePointChange(score){
-    this.setState({
+    this.setState((currentState) => ({
       score,
-      server: Math.floor((score[0] + score[1])/2)%2
-    })
+      server: (Math.floor((score[0] + score[1])/2) + currentState.initialServer)%2
+    }))
   }
   handleWinner (wins) {
     this.setState((currentState) => ({
@@ -65,6 +67,13 @@ class App extends Component {
       server: (currentState.initialServer + 1) % 2,
       wins,
     }))
+  }
+  handleConfig (p1, p2, switchSides, darkMode) {
+    this.setState({
+      players: [p1, p2],
+      switchSides,
+      darkMode,
+    })
   }
   render () {
     return (
@@ -93,6 +102,8 @@ class App extends Component {
             <Config 
               players={this.state.players}
               switchSides={this.state.switchSides}
+              darkMode={this.state.darkMode}
+              onConfig={this.handleConfig}
             />
           )
         }} />

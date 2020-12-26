@@ -54,7 +54,10 @@ export default class Game extends Component {
     })
   }
   renderBarWinner(){
-    if (((this.props.score[0] < 11) && (this.props.score[0] < 11)) || (Math.abs(this.props.score[0] - this.props.score[1]) < 2)){
+    if (
+      ((this.props.score[0] < 11) && (this.props.score[1] < 11)) || 
+      (Math.abs(this.props.score[0] - this.props.score[1]) < 2))
+      {
       const serveBar = <div style={{background: '#16f016'}}><h5>Server</h5></div>
       const serverStatus = [
         (this.props.server === 0 ? serveBar : <></>),
