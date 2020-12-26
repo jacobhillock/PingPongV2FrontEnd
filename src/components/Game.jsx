@@ -1,73 +1,85 @@
-import React, { Component, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Context from "../state/Context";
 
-export default class Game extends Component {
-  constructor(props) {
-    super(props);
+const Game = () => {
+  const [number, setNumber] = useState(null);
 
-    this.state = {
-      number: null,
+  const { players } = useContext(Context);
+  const { scores, setScores } = useContext(Context);
+  const { wins, setWins } = useContext(Context);
+  const { initialServer, setInitialServer } = useContext(Context);
+
+  useEffect(() => {
+    // console.log("set score effect", scores);
+    localStorage.setItem("scores", JSON.stringify(scores));
+  }, [scores]);
+  useEffect(() => {
+    console.log("set wins effect", wins);
+    sessionStorage.setItem("wins", JSON.stringify(wins));
+  }, [wins]);
+  useEffect(() => {
+    console.log("set initialServers effect", initialServer);
+    sessionStorage.setItem("initialServer", JSON.stringify(initialServer));
+  }, [initialServer]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
     };
+  });
 
-    this.keydown = this.handleKeyPress.bind(this);
-    this.setWinner = this.setWinner.bind(this);
-  }
-  componentDidMount() {
-    window.addEventListener("keydown", this.keydown);
-    const { players } = useContext(Context);
-    this.players = players;
-  }
-  componentWillUnmount() {
-    window.removeEventListener("keydown", this.keydown);
-  }
-  handleKeyPress(event) {
+  const handleKeyPress = (event) => {
     // Set the player to increase/decrease
     if (event.keyCode === 49) {
-      this.setState({ number: 0 });
+      setNumber(0);
     } else if (event.keyCode === 50) {
-      this.setState({ number: 1 });
+      setNumber(1);
     }
 
     // Increase/Decrease set player
-    if (event.keyCode === 38 || event.keyCode === 187) {
-      const score = this.props.score;
-      score[this.state.number]++;
-      this.props.onPointChange(score);
-      this.setState({
-        number: null,
-      });
-    } else if (event.keyCode === 40 || event.keyCode === 189) {
-      const score = this.props.score;
-      score[this.state.number]--;
-      this.props.onPointChange(score);
-      this.setState({
-        number: null,
-      });
-    }
-  }
-  setWinner(winner) {
-    var wins = this.props.wins;
-    wins[winner]++;
-    this.props.onWinner(wins);
-    this.setState({
-      number: null,
-    });
-  }
-  renderBarWinner() {
-    if (
-      (this.props.score[0] < 11 && this.props.score[1] < 11) ||
-      Math.abs(this.props.score[0] - this.props.score[1]) < 2
+    var score = scores;
+    if (number != null && (event.keyCode === 38 || event.keyCode === 187)) {
+      score[number]++;
+
+      setScores(score);
+      setNumber(null);
+    } else if (
+      number != null &&
+      (event.keyCode === 40 || event.keyCode === 189)
     ) {
+      score[number]--;
+
+      setScores(score);
+      setNumber(null);
+    }
+  };
+  const setWinner = (winner) => {
+    var win = wins;
+    win[winner]++;
+    setWins(win);
+    setScores([0, 0]);
+    setInitialServer((initialServer + 1) % 2);
+    setNumber(null);
+  };
+  const renderBarWinner = () => {
+    if (
+      (scores[0] < 11 && scores[1] < 11) ||
+      Math.abs(scores[0] - scores[1]) < 2
+    ) {
+      const server =
+        (parseInt((scores[0] + scores[1]) / 2) + initialServer) % 2;
       const serveBar = (
         <div style={{ background: "#16f016" }}>
           <h5>Server</h5>
         </div>
       );
       const serverStatus = [
-        this.props.server === 0 ? serveBar : <></>,
-        this.props.server === 1 ? serveBar : <></>,
+        server === 0 ? serveBar : <></>,
+        server === 1 ? serveBar : <></>,
       ];
       return (
         <>
@@ -76,37 +88,37 @@ export default class Game extends Component {
         </>
       );
     } else {
-      const plWinner = this.props.score[0] > this.props.score[1] ? 0 : 1;
+      const plWinner = scores[0] > scores[1] ? 0 : 1;
       const winner = (
-        <button onClick={() => this.setWinner(plWinner)}>
+        <button onClick={() => setWinner(plWinner)}>
           <Col>
-            <h2>{this.players[plWinner]} is the Winner!!!</h2>
+            <h2>{players[plWinner]} is the Winner!!!</h2>
           </Col>
         </button>
       );
       return <Col align="center">{winner}</Col>;
     }
-  }
-  render() {
-    const bar = this.renderBarWinner();
-    return (
-      <Container fluid>
-        <Row>
-          <Col align="center">
-            <h1>
-              {this.players[0]}'s wins: {this.props.wins[0]}
-            </h1>
-            <h3>Score: {this.props.score[0]}</h3>
-          </Col>
-          <Col align="center">
-            <h1>
-              {this.players[1]}'s wins: {this.props.wins[1]}
-            </h1>
-            <h3>Score: {this.props.score[1]}</h3>
-          </Col>
-        </Row>
-        <Row>{bar}</Row>
-      </Container>
-    );
-  }
-}
+  };
+  const bar = renderBarWinner();
+  return (
+    <Container fluid>
+      <Row>
+        <Col align="center">
+          <h1>
+            {players[0]}'s wins: {wins[0]}
+          </h1>
+          <h3>Score: {scores[0]}</h3>
+        </Col>
+        <Col align="center">
+          <h1>
+            {players[1]}'s wins: {wins[1]}
+          </h1>
+          <h3>Score: {scores[1]}</h3>
+        </Col>
+      </Row>
+      <Row>{bar}</Row>
+    </Container>
+  );
+};
+
+export default Game;
