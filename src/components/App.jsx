@@ -1,22 +1,28 @@
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
 import Config from "./Config";
-import Game from "./Game";
+// import Game from "./Game";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 
 import { BrowserRouter, Route } from "react-router-dom";
 
-function Home(props) {
+import Context from "../state/Context";
+
+const Home = (props) => {
+  const { players } = useContext(Context);
   return (
     <Container fluid align="center">
       <h1>Home</h1>
       <p>This is a PingPong score board app</p>
+      <p>
+        Players are {players[0]} and {players[1]}
+      </p>
     </Container>
   );
-}
+};
 
-function AppNav() {
+const AppNav = () => {
   return (
     <Navbar bg="dark" variant="dark">
       <Nav className="mr-auto">
@@ -32,7 +38,7 @@ function AppNav() {
       </Nav>
     </Navbar>
   );
-}
+};
 
 class App extends Component {
   constructor(props) {
@@ -83,7 +89,7 @@ class App extends Component {
             return <Home />;
           }}
         />
-        <Route
+        {/* <Route
           path="/game"
           render={() => {
             return (
@@ -97,7 +103,7 @@ class App extends Component {
               />
             );
           }}
-        />
+        /> */}
         <Route
           path="/config"
           render={() => {
