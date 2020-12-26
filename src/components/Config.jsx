@@ -7,8 +7,14 @@ import Context from "../state/Context";
 
 const Config = () => {
   const { players, setPlayers } = useContext(Context);
+  // const { switchSides, setSwitchSides } = useContext(Context);
+  // const { darkMode, setDarkMode } = useContext(Context);
 
-  const submitChanges = (event) => {
+  useEffect(() => {
+    localStorage.setItem("players", JSON.stringify(players));
+  }, [players]);
+
+  const handleSubmit = (event) => {
     event.preventDefault();
     setPlayers([event.target.pl1.value, event.target.pl2.value]);
 
@@ -17,7 +23,7 @@ const Config = () => {
   return (
     <Container fluid align="center">
       <h1>Config</h1>
-      <Form onSubmit={submitChanges}>
+      <Form onSubmit={handleSubmit}>
         <Form.Row>
           <Form.Group as={Col}>
             <Form.Label>Player 1 Name</Form.Label>
