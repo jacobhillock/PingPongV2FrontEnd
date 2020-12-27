@@ -5,6 +5,17 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Context from "../state/Context";
 
+const makeID = (length) => {
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
 const Game = () => {
   const [number, setNumber] = useState(null);
 
@@ -13,7 +24,6 @@ const Game = () => {
   const { wins, setWins } = useContext(Context);
   const { switchSides } = useContext(Context);
   const { id, setID } = useContext(Context);
-  const { useId, setUseID } = useContext(Context);
   const { url } = useContext(Context);
 
   useEffect(() => {
@@ -25,13 +35,9 @@ const Game = () => {
     sessionStorage.setItem("wins", JSON.stringify(wins));
   }, [wins]);
   useEffect(() => {
-    // console.log("set wins effect", wins);
+    console.log("set id effect", id);
     sessionStorage.setItem("id", JSON.stringify(id));
   }, [id]);
-  useEffect(() => {
-    // console.log("set wins effect", wins);
-    sessionStorage.setItem("useId", JSON.stringify(useId));
-  }, [useId]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
@@ -182,12 +188,16 @@ const Game = () => {
       </>
     );
   };
-  const activateWatch = () => {
-    setUseID(1);
-    setID(123);
-  };
   const renderWatchNow = () => {
-    if (useId === 1) {
+    if (id === null) {
+      return (
+        <Col align="center">
+          <Button variant="primary" onClick={() => setID(makeID(7))}>
+            Click here to enable this game to be watched
+          </Button>
+        </Col>
+      );
+    } else {
       const link = `${url}watch/${id}`;
       return (
         <Col align="center">
@@ -195,14 +205,6 @@ const Game = () => {
             <p>Click here to see the watch link</p>
           </a>
           <p>Or share the watch link: {link}</p>
-        </Col>
-      );
-    } else {
-      return (
-        <Col align="center">
-          <Button variant="primary" onClick={activateWatch}>
-            Click here to enable this game to be watched
-          </Button>
         </Col>
       );
     }

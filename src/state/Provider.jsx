@@ -35,12 +35,7 @@ const Provider = ({ children }) => {
   const [id, setID] = useState(
     sessionStorage.getItem("id") === null
       ? null
-      : JSON.parse(localStorage.getItem("id"))
-  );
-  const [useId, setUseID] = useState(
-    sessionStorage.getItem("useId") === null
-      ? 0
-      : JSON.parse(localStorage.getItem("useId"))
+      : JSON.parse(sessionStorage.getItem("id"))
   );
   const [url, setUrl] = useState("http://192.168.1.22:3000/");
 
@@ -57,8 +52,6 @@ const Provider = ({ children }) => {
     setDarkMode,
     id,
     setID,
-    useId,
-    setUseID,
     url,
     setUrl,
   };
