@@ -6,24 +6,16 @@ import Context from "../state/Context";
 
 const Game = () => {
   const [number, setNumber] = useState(null);
+  const [scores, setScores] = useState([0, 0]);
 
   const { players } = useContext(Context);
-  const { scores, setScores } = useContext(Context);
   const { wins, setWins } = useContext(Context);
-  const { initialServer, setInitialServer } = useContext(Context);
+  const { switchSides } = useContext(Context);
 
   useEffect(() => {
-    // console.log("set score effect", scores);
-    localStorage.setItem("scores", JSON.stringify(scores));
-  }, [scores]);
-  useEffect(() => {
-    console.log("set wins effect", wins);
+    // console.log("set wins effect", wins);
     sessionStorage.setItem("wins", JSON.stringify(wins));
   }, [wins]);
-  useEffect(() => {
-    console.log("set initialServers effect", initialServer);
-    sessionStorage.setItem("initialServer", JSON.stringify(initialServer));
-  }, [initialServer]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
@@ -41,35 +33,72 @@ const Game = () => {
     }
 
     // Increase/Decrease set player
-    var score = scores;
-    if (number != null && (event.keyCode === 38 || event.keyCode === 187)) {
-      score[number]++;
 
-      setScores(score);
+    if (number != null && (event.keyCode === 38 || event.keyCode === 187)) {
+      scoreChange(number, 1);
+
       setNumber(null);
     } else if (
       number != null &&
       (event.keyCode === 40 || event.keyCode === 189)
     ) {
-      score[number]--;
-
-      setScores(score);
+      scoreChange(number, -1);
       setNumber(null);
     }
   };
   const setWinner = (winner) => {
-    var win = wins;
-    win[winner]++;
+    var win = [];
+    win[winner] = wins[winner] + 1;
+    win[Math.abs(winner - 1)] = wins[Math.abs(winner - 1)];
     setWins(win);
     setScores([0, 0]);
-    setInitialServer((initialServer + 1) % 2);
     setNumber(null);
+  };
+  const scoreChange = (player, delta) => {
+    var score = [];
+    score[player] = scores[player] + delta;
+    score[Math.abs(player - 1)] = scores[Math.abs(player - 1)];
+
+    setScores(score);
+  };
+  const getPlayerSide = (pl) => {
+    return (pl + switchSides) % 2;
+  };
+  const renderPlayers = () => {
+    return (
+      <>
+        <Col align="center">
+          <h1>
+            {players[getPlayerSide(0)]}'s wins: {wins[getPlayerSide(0)]}
+          </h1>
+        </Col>
+        <Col align="center">
+          <h1>
+            {players[getPlayerSide(1)]}'s wins: {wins[getPlayerSide(1)]}
+          </h1>
+        </Col>
+      </>
+    );
+  };
+  const renderScores = () => {
+    return (
+      <>
+        <Col align="center">
+          <h2>Score: {scores[getPlayerSide(0)]}</h2>
+        </Col>
+        <Col align="center">
+          <h2>Score: {scores[getPlayerSide(1)]}</h2>
+        </Col>
+      </>
+    );
   };
   const renderBarWinner = () => {
     if (
       (scores[0] < 11 && scores[1] < 11) ||
       Math.abs(scores[0] - scores[1]) < 2
     ) {
+      // Default display which shows current server
+      const initialServer = (wins[0] + wins[1]) % 2;
       const server =
         (parseInt((scores[0] + scores[1]) / 2) + initialServer) % 2;
       const serveBar = (
@@ -88,7 +117,9 @@ const Game = () => {
         </>
       );
     } else {
-      const plWinner = scores[0] > scores[1] ? 0 : 1;
+      // Winner display
+      const plWinner =
+        scores[getPlayerSide(0)] > scores[getPlayerSide(1)] ? 0 : 1;
       const winner = (
         <button onClick={() => setWinner(plWinner)}>
           <Col>
@@ -99,24 +130,50 @@ const Game = () => {
       return <Col align="center">{winner}</Col>;
     }
   };
-  const bar = renderBarWinner();
+  const renderMouseScore = () => {
+    return (
+      <>
+        <Col align="center">
+          <button
+            onClick={() => scoreChange(getPlayerSide(0), -1)}
+            style={{ width: "50%" }}
+          >
+            <h3>-1</h3>
+          </button>
+          <button
+            onClick={() => scoreChange(getPlayerSide(0), 1)}
+            style={{ width: "50%" }}
+          >
+            <h3>+1</h3>
+          </button>
+        </Col>
+        <Col align="center">
+          <button
+            onClick={() => scoreChange(getPlayerSide(1), -1)}
+            style={{ width: "50%" }}
+          >
+            <h3>-1</h3>
+          </button>
+          <button
+            onClick={() => scoreChange(getPlayerSide(1), 1)}
+            style={{ width: "50%" }}
+          >
+            <h3>+1</h3>
+          </button>
+        </Col>
+      </>
+    );
+  };
+  const playersRendering = renderPlayers();
+  const scoresRendering = renderScores();
+  const barRendering = renderBarWinner();
+  const manualScoreRendering = renderMouseScore();
   return (
     <Container fluid>
-      <Row>
-        <Col align="center">
-          <h1>
-            {players[0]}'s wins: {wins[0]}
-          </h1>
-          <h3>Score: {scores[0]}</h3>
-        </Col>
-        <Col align="center">
-          <h1>
-            {players[1]}'s wins: {wins[1]}
-          </h1>
-          <h3>Score: {scores[1]}</h3>
-        </Col>
-      </Row>
-      <Row>{bar}</Row>
+      <Row style={{ marginTop: "3%" }}>{playersRendering}</Row>
+      <Row style={{ marginTop: "2%" }}>{scoresRendering}</Row>
+      <Row style={{ marginTop: "2%" }}>{barRendering}</Row>
+      <Row style={{ marginTop: "3%" }}>{manualScoreRendering}</Row>
     </Container>
   );
 };

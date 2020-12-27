@@ -9,7 +9,7 @@ import { BrowserRouter, Route } from "react-router-dom";
 
 import Context from "../state/Context";
 
-const Home = (props) => {
+const Home = () => {
   const { players } = useContext(Context);
   return (
     <Container fluid align="center">
