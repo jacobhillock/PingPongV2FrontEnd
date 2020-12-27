@@ -1,18 +1,25 @@
 import React, { useContext, useEffect } from "react";
 import Container from "react-bootstrap/Container";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
 import Context from "../state/Context";
 
 const Config = () => {
   const { players, setPlayers } = useContext(Context);
-  // const { switchSides, setSwitchSides } = useContext(Context);
-  // const { darkMode, setDarkMode } = useContext(Context);
+  const { switchSides, setSwitchSides } = useContext(Context);
+  const { darkMode, setDarkMode } = useContext(Context);
 
   useEffect(() => {
     localStorage.setItem("players", JSON.stringify(players));
   }, [players]);
+  useEffect(() => {
+    localStorage.setItem("switchSides", JSON.stringify(switchSides));
+  }, [switchSides]);
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+  }, [darkMode]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -33,20 +40,28 @@ const Config = () => {
             <Form.Label>Player 2 Name</Form.Label>
             <Form.Control className="mb-2" id="pl2" defaultValue={players[1]} />
           </Form.Group>
-          <Form.Group as={Col} controlId="switch">
-            <Form.Check
-              type="checkbox"
-              label="Do Player Switch"
-              id="switch"
-              disabled
-            />
-            <Form.Check type="checkbox" label="Dark Mode" id="dark" disabled />
-          </Form.Group>
           <Button variant="primary" type="submit">
             Submit
           </Button>
         </Form.Row>
       </Form>
+      <Row>
+        <Button
+          variant="primary"
+          onClick={() => setSwitchSides(Math.abs(switchSides - 1))}
+        >
+          Toggle Switch Sides, Currently: {switchSides === 0 ? "Off" : "On"}
+        </Button>
+      </Row>
+      <Row>
+        <Button
+          variant="primary"
+          onClick={() => setDarkMode(Math.abs(darkMode - 1))}
+          disabled
+        >
+          Toggle Switch Sides, Currently: {darkMode === 0 ? "Off" : "On"}
+        </Button>
+      </Row>
     </Container>
   );
 };

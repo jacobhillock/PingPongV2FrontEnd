@@ -15,19 +15,38 @@ const Provider = ({ children }) => {
       ? [0, 0]
       : JSON.parse(sessionStorage.getItem("wins"))
   );
+  // Score state
+  const [scores, setScores] = useState(
+    sessionStorage.getItem("scores") === null
+      ? [0, 0]
+      : JSON.parse(sessionStorage.getItem("scores"))
+  );
 
-  const [switchSides, setSwitchSides] = useState(0);
-  const [darkMode, setDarkMode] = useState(0);
+  const [switchSides, setSwitchSides] = useState(
+    localStorage.getItem("switchSides") === null
+      ? 0
+      : JSON.parse(localStorage.getItem("switchSides"))
+  );
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("switchSides") === null
+      ? 0
+      : JSON.parse(localStorage.getItem("switchSides"))
+  );
+  const [id, setID] = useState(null);
 
   const value = {
     players,
     setPlayers,
     wins,
     setWins,
+    scores,
+    setScores,
     switchSides,
     setSwitchSides,
     darkMode,
     setDarkMode,
+    id,
+    setID,
   };
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -6,12 +6,17 @@ import Context from "../state/Context";
 
 const Game = () => {
   const [number, setNumber] = useState(null);
-  const [scores, setScores] = useState([0, 0]);
 
+  const { scores, setScores } = useContext(Context);
   const { players } = useContext(Context);
   const { wins, setWins } = useContext(Context);
   const { switchSides } = useContext(Context);
+  const { id, setID } = useContext(Context);
 
+  useEffect(() => {
+    // console.log("set scores effect", wins);
+    sessionStorage.setItem("scores", JSON.stringify(scores));
+  }, [scores]);
   useEffect(() => {
     // console.log("set wins effect", wins);
     sessionStorage.setItem("wins", JSON.stringify(wins));
@@ -62,7 +67,10 @@ const Game = () => {
     setScores(score);
   };
   const getPlayerSide = (pl) => {
-    return (pl + switchSides) % 2;
+    const games = wins[0] + wins[1];
+    const swop =
+      (games % 4 === 1 || games % 4 === 2) && switchSides === 1 ? 1 : 0;
+    return (pl + swop) % 2;
   };
   const renderPlayers = () => {
     return (
@@ -112,8 +120,8 @@ const Game = () => {
       ];
       return (
         <>
-          <Col align="center">{serverStatus[0]}</Col>
-          <Col align="center">{serverStatus[1]}</Col>
+          <Col align="center">{serverStatus[getPlayerSide(0)]}</Col>
+          <Col align="center">{serverStatus[getPlayerSide(1)]}</Col>
         </>
       );
     } else {
@@ -164,16 +172,30 @@ const Game = () => {
       </>
     );
   };
+  const renderWatchNow = () => {
+    const link = `http://192.168.1.22:3000/watch/${id}`;
+    return (
+      <Col align="center">
+        <a href={link}>
+          <p>Click here to see the watch link</p>
+        </a>
+        <p>Or share the watch link: {link}</p>
+      </Col>
+    );
+  };
+
   const playersRendering = renderPlayers();
   const scoresRendering = renderScores();
   const barRendering = renderBarWinner();
   const manualScoreRendering = renderMouseScore();
+  const watchNowRendering = renderWatchNow();
   return (
     <Container fluid>
       <Row style={{ marginTop: "3%" }}>{playersRendering}</Row>
       <Row style={{ marginTop: "2%" }}>{scoresRendering}</Row>
       <Row style={{ marginTop: "2%" }}>{barRendering}</Row>
       <Row style={{ marginTop: "3%" }}>{manualScoreRendering}</Row>
+      <Row style={{ marginTop: "3%" }}>{watchNowRendering}</Row>
     </Container>
   );
 };
