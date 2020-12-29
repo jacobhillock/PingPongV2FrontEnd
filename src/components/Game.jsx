@@ -1,19 +1,17 @@
 import React, { useState, useContext, useEffect } from "react";
+import axios from "axios";
 import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 import Context from "../state/Context";
 
-const makeID = (length) => {
-  var result = "";
-  var characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
+import ScoreBoard from "./ScoreBoard";
+import ServerBar from "./ServerBar";
+import WatchNow from "./WatchNow";
+import ScoreButtons from "./ScoreButtons";
+
+const POST = async (data) => {
+  await axios.post("/upload", data).then(function (response) {
+    console.log(response);
+  });
 };
 
 const Game = () => {
@@ -35,7 +33,18 @@ const Game = () => {
     sessionStorage.setItem("wins", JSON.stringify(wins));
   }, [wins]);
   useEffect(() => {
-    console.log("set id effect", id);
+    // console.log("set id effect", id);
+    if (id !== null)
+      POST({
+        id,
+        players: JSON.parse(localStorage.getItem("players")) || [
+          "Player 1",
+          "Player 2",
+        ],
+        wins: [0, 0],
+        scores: [0, 0],
+        pSide: [0, 1],
+      });
     sessionStorage.setItem("id", JSON.stringify(id));
   }, [id]);
 
@@ -72,6 +81,13 @@ const Game = () => {
     var win = [];
     win[winner] = wins[winner] + 1;
     win[(winner + 1) % 2] = wins[(winner + 1) % 2];
+    POST({
+      id,
+      players,
+      wins: win,
+      scores: [0, 0],
+      pSide,
+    });
     setWins(win);
     setScores([0, 0]);
     setNumber(null);
@@ -81,6 +97,15 @@ const Game = () => {
     score[player] = scores[player] + delta;
     score[(player + 1) % 2] = scores[(player + 1) % 2];
 
+    if ((score[0] + score[1]) % 2 === 0 && id !== null) {
+      POST({
+        id,
+        players,
+        wins,
+        scores: score,
+        pSide,
+      });
+    }
     setScores(score);
   };
   const getPlayerSide = (pl) => {
@@ -89,140 +114,30 @@ const Game = () => {
       (games % 4 === 1 || games % 4 === 2) && switchSides === 1 ? 1 : 0;
     return (pl + swop) % 2;
   };
-  const renderPlayers = (pSide) => {
-    const rendering = [
-      <Col align="center">
-        <h1>
-          {players[0]}'s wins: {wins[0]}
-        </h1>
-      </Col>,
-      <Col align="center">
-        <h1>
-          {players[1]}'s wins: {wins[1]}
-        </h1>
-      </Col>,
-    ];
-    return (
-      <>
-        {rendering[pSide[0]]}
-        {rendering[pSide[1]]}
-      </>
-    );
-  };
-  const renderScores = (pSide) => {
-    const rendering = [
-      <Col align="center">
-        <h2>Score: {scores[0]}</h2>
-      </Col>,
-      <Col align="center">
-        <h2>Score: {scores[1]}</h2>
-      </Col>,
-    ];
-    return (
-      <>
-        {rendering[pSide[0]]}
-        {rendering[pSide[1]]}
-      </>
-    );
-  };
-  const renderBarWinner = (pSide) => {
-    if (
-      (scores[0] < 11 && scores[1] < 11) ||
-      Math.abs(scores[0] - scores[1]) < 2
-    ) {
-      // Default display which shows current server
-      const initialServer = (wins[0] + wins[1]) % 2;
-      const server =
-        (parseInt((scores[0] + scores[1]) / 2) + initialServer) % 2;
-      const serveBar = (
-        <div style={{ background: "#16f016" }}>
-          <h5>Server</h5>
-        </div>
-      );
-      const serverStatus = [
-        server === 0 ? serveBar : <></>,
-        server === 1 ? serveBar : <></>,
-      ];
-      return (
-        <>
-          <Col align="center">{serverStatus[pSide[0]]}</Col>
-          <Col align="center">{serverStatus[pSide[1]]}</Col>
-        </>
-      );
-    } else {
-      // Winner display
-      const plWinner = scores[0] > scores[1] ? 0 : 1;
-      const winner = (
-        <button onClick={() => setWinner(plWinner)}>
-          <Col>
-            <h2>{players[plWinner]} is the Winner!!!</h2>
-          </Col>
-        </button>
-      );
-      return <Col align="center">{winner}</Col>;
-    }
-  };
-  const renderMouseScore = (pSide) => {
-    const rendering = [
-      <Col align="center">
-        <button onClick={() => scoreChange(0, -1)} style={{ width: "50%" }}>
-          <h3>-1</h3>
-        </button>
-        <button onClick={() => scoreChange(0, 1)} style={{ width: "50%" }}>
-          <h3>+1</h3>
-        </button>
-      </Col>,
-      <Col align="center">
-        <button onClick={() => scoreChange(1, -1)} style={{ width: "50%" }}>
-          <h3>-1</h3>
-        </button>
-        <button onClick={() => scoreChange(1, 1)} style={{ width: "50%" }}>
-          <h3>+1</h3>
-        </button>
-      </Col>,
-    ];
-    return (
-      <>
-        {rendering[pSide[0]]}
-        {rendering[pSide[1]]}
-      </>
-    );
-  };
-  const renderWatchNow = () => {
-    if (id === null) {
-      return (
-        <Col align="center">
-          <Button variant="primary" onClick={() => setID(makeID(7))}>
-            Click here to enable this game to be watched
-          </Button>
-        </Col>
-      );
-    } else {
-      const link = `${url}watch/${id}`;
-      return (
-        <Col align="center">
-          <a href={link}>
-            <p>Click here to see the watch link</p>
-          </a>
-          <p>Or share the watch link: {link}</p>
-        </Col>
-      );
-    }
-  };
 
   const pSide = [getPlayerSide(0), getPlayerSide(1)];
-  const playersRendering = renderPlayers(pSide);
-  const scoresRendering = renderScores(pSide);
-  const barRendering = renderBarWinner(pSide);
-  const manualScoreRendering = renderMouseScore(pSide);
-  const watchNowRendering = renderWatchNow();
   return (
     <Container fluid>
-      <Row style={{ marginTop: "3%" }}>{playersRendering}</Row>
-      <Row style={{ marginTop: "2%" }}>{scoresRendering}</Row>
-      <Row style={{ marginTop: "2%" }}>{barRendering}</Row>
-      <Row style={{ marginTop: "3%" }}>{manualScoreRendering}</Row>
-      <Row style={{ marginTop: "3%" }}>{watchNowRendering}</Row>
+      <ScoreBoard
+        style={{ margin: "3%" }}
+        players={players}
+        wins={wins}
+        scores={scores}
+        pSide={pSide}
+      />
+      <ServerBar
+        style={{ margin: "3%" }}
+        players={players}
+        scores={scores}
+        wins={wins}
+        pSide={pSide}
+      />
+      <ScoreButtons
+        style={{ marginTop: "3%" }}
+        scoreChange={scoreChange}
+        pSide={pSide}
+      />
+      <WatchNow style={{ marginTop: "3%" }} id={id} url={url} setID={setID} />
     </Container>
   );
 };

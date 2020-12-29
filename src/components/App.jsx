@@ -68,6 +68,13 @@ const App = () => {
     <BrowserRouter>
       <AppNav />
       <Route exact path="/" component={Home} />
+      <Route
+        path="/upload/:id"
+        render={(props) => {
+          const { id } = props.match.params;
+          return <h2>Game id: {id}</h2>;
+        }}
+      />
       <Route path="/game" component={Game} />
       <Route path="/watch" component={Watch} />
       <Route path="/config" component={Config} />
