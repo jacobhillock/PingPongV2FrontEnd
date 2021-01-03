@@ -32,14 +32,14 @@ const WatchRendering = () => {
   return (
     <>
       <ScoreBoard
-        style={{ margin: "3%" }}
+        style={{ marginTop: "3%" }}
         players={players}
         wins={wins}
         scores={scores}
         pSide={pSide}
       />
       <ServerBar
-        style={{ margin: "3%" }}
+        style={{ marginTop: "3%" }}
         players={players}
         scores={scores}
         wins={wins}

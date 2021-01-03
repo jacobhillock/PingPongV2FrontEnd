@@ -32,6 +32,13 @@ const Game = () => {
     // console.log("set wins effect", wins);
     sessionStorage.setItem("wins", JSON.stringify(wins));
   }, [wins]);
+  const getPlayerSide = (pl, win) => {
+    const gameWins = win !== null ? win : wins;
+    const games = gameWins[0] + gameWins[1];
+    const swop =
+      (games % 4 === 1 || games % 4 === 2) && switchSides === 1 ? 1 : 0;
+    return (pl + swop) % 2;
+  };
   useEffect(() => {
     // console.log("set id effect", id);
     if (id !== null)
@@ -43,7 +50,7 @@ const Game = () => {
         ],
         wins: [0, 0],
         scores: [0, 0],
-        pSide: [0, 1],
+        pSide: [getPlayerSide(0, null), getPlayerSide(1, null)],
       });
     sessionStorage.setItem("id", JSON.stringify(id));
   }, [id]);
@@ -58,9 +65,9 @@ const Game = () => {
   const handleKeyPress = (event) => {
     // Set the player to increase/decrease
     if (event.keyCode === 49) {
-      setNumber(getPlayerSide(0));
+      setNumber(getPlayerSide(0, null));
     } else if (event.keyCode === 50) {
-      setNumber(getPlayerSide(1));
+      setNumber(getPlayerSide(1, null));
     }
 
     // Increase/Decrease set player
@@ -81,16 +88,16 @@ const Game = () => {
     var win = [];
     win[winner] = wins[winner] + 1;
     win[(winner + 1) % 2] = wins[(winner + 1) % 2];
+    setWins(win);
+    setScores([0, 0]);
+    setNumber(null);
     POST({
       id,
       players,
       wins: win,
       scores: [0, 0],
-      pSide,
+      pSide: [getPlayerSide(0, win), getPlayerSide(1, win)],
     });
-    setWins(win);
-    setScores([0, 0]);
-    setNumber(null);
   };
   const scoreChange = (player, delta) => {
     var score = [];
@@ -103,34 +110,29 @@ const Game = () => {
         players,
         wins,
         scores: score,
-        pSide,
+        pSide: [getPlayerSide(0, null), getPlayerSide(1, null)],
       });
     }
     setScores(score);
   };
-  const getPlayerSide = (pl) => {
-    const games = wins[0] + wins[1];
-    const swop =
-      (games % 4 === 1 || games % 4 === 2) && switchSides === 1 ? 1 : 0;
-    return (pl + swop) % 2;
-  };
 
-  const pSide = [getPlayerSide(0), getPlayerSide(1)];
+  const pSide = [getPlayerSide(0, null), getPlayerSide(1, null)];
   return (
     <Container fluid>
       <ScoreBoard
-        style={{ margin: "3%" }}
+        style={{ marginTop: "3%" }}
         players={players}
         wins={wins}
         scores={scores}
         pSide={pSide}
       />
       <ServerBar
-        style={{ margin: "3%" }}
+        style={{ marginTop: "3%" }}
         players={players}
         scores={scores}
         wins={wins}
         pSide={pSide}
+        onWinner={setWinner}
       />
       <ScoreButtons
         style={{ marginTop: "3%" }}
