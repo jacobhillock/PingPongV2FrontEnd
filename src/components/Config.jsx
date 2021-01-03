@@ -10,6 +10,7 @@ const Config = () => {
   const { players, setPlayers } = useContext(Context);
   const { switchSides, setSwitchSides } = useContext(Context);
   const { darkMode, setDarkMode } = useContext(Context);
+  // const { sevenSeg, setSevenSeg } = useContext(Context);
 
   useEffect(() => {
     localStorage.setItem("players", JSON.stringify(players));
@@ -20,6 +21,9 @@ const Config = () => {
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
   }, [darkMode]);
+  // useEffect(() => {
+  //   localStorage.setItem("sevenSeg", JSON.stringify(sevenSeg));
+  // }, [sevenSeg]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -59,9 +63,18 @@ const Config = () => {
           onClick={() => setDarkMode(Math.abs(darkMode - 1))}
           disabled
         >
-          Toggle Switch Sides, Currently: {darkMode === 0 ? "Off" : "On"}
+          Toggle Dark Mode, Currently: {darkMode === 0 ? "Off" : "On"}
         </Button>
       </Row>
+      {/* <Row>
+        <Button
+          variant="primary"
+          onClick={() => setSevenSeg(Math.abs(sevenSeg - 1))}
+          disabled
+        >
+          Toggle Seven Segment, Currently: {sevenSeg === 0 ? "Off" : "On"}
+        </Button>
+      </Row> */}
     </Container>
   );
 };

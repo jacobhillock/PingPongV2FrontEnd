@@ -32,6 +32,11 @@ const Provider = ({ children }) => {
       ? 0
       : JSON.parse(localStorage.getItem("darkMode"))
   );
+  // const [sevenSeg, setSevenSeg] = useState(
+  //   localStorage.getItem("sevenSeg") === null
+  //     ? 1
+  //     : JSON.parse(localStorage.getItem("sevenSeg"))
+  // );
   const [id, setID] = useState(
     sessionStorage.getItem("id") === null
       ? null
@@ -52,6 +57,8 @@ const Provider = ({ children }) => {
     setDarkMode,
     id,
     setID,
+    // sevenSeg,
+    // setSevenSeg,
     url,
     setUrl,
   };
